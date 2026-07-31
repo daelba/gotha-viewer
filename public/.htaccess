@@ -1,0 +1,28 @@
+# Gotha viewer – public/.htaccess
+
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Cesta aplikace v URL webu (odpovídá APP_PATH v .env, bez domény).
+    RewriteBase /html/gotha-viewer/public/
+
+    # Nech existující soubory a adresáře (css, js, icons)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # RESTful routing pres query string (router cte $_GET; REQUEST_URI se po
+    # dvojitem rewrite virtualhostu ztraci, proto path predavame jako parametr).
+    #   /family/Q135      -> index.php?family=Q135
+    #   /api/person/Q135  -> index.php?api=person&id=Q135
+    RewriteRule ^family/([A-Za-z0-9]+)/?$ index.php?family=$1 [L,QSA]
+    RewriteRule ^api/person/([A-Za-z0-9]+)/?$ index.php?api=person&id=$1 [L,QSA]
+    RewriteRule ^refresh/?$ index.php?refresh=1 [L,QSA]
+</IfModule>
+
+# Zakryj verzi PHP
+<IfModule mod_headers.c>
+    Header unset X-Powered-By
+</IfModule>
