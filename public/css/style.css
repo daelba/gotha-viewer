@@ -1,6 +1,7 @@
 /* Gotha viewer */
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; font-family: Georgia, 'Times New Roman', serif; color: #2b2b2b; background: #fafaf7; }
+html, body { height: 100%; overflow: hidden; }
+body { margin: 0; font-family: Georgia, 'Times New Roman', serif; color: #2b2b2b; background: #fafaf7; display: flex; flex-direction: column; height: 100vh; }
 a { color: #37517e; }
 
 /* --- hlavička --- */
@@ -14,7 +15,7 @@ a { color: #37517e; }
 .action-refresh { color: #f5f3ea; font-size: .85rem; text-decoration: none; border: 1px solid rgba(255,255,255,.4); padding: .3rem .7rem; border-radius: 4px; }
 .action-refresh:hover { background: rgba(255,255,255,.12); }
 
-main { padding: 1.2rem; max-width: 100%; }
+main { padding: 1.2rem; max-width: 100%; flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
 
 /* --- flash --- */
 .flash { padding: .7rem 1rem; border-radius: 5px; background: #eef3ee; border: 1px solid #cfdccf; margin-bottom: 1rem; }
@@ -39,7 +40,8 @@ main { padding: 1.2rem; max-width: 100%; }
 .tree-search-results li { padding: .45rem .8rem; cursor: pointer; }
 .tree-search-results li:hover { background: #f0ede0; }
 
-.tree-canvas { position: relative; overflow: auto; border: 1px solid #ddd8c5; background: #fff; min-height: 400px; }
+.family { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.tree-canvas { position: relative; overflow: auto; border: 1px solid #ddd8c5; background: #fff; min-height: 0; flex: 1; }
 #tree-edges { position: absolute; left: 30px; top: 20px; }
 #tree-edges path.marriage { stroke: #a59371; stroke-width: 2; }
 #tree-edges path.child { stroke: #8f9e8f; stroke-width: 1.5; }
@@ -63,4 +65,9 @@ main { padding: 1.2rem; max-width: 100%; }
 .person-panel th { width: 40%; color: #555; font-weight: 600; }
 
 /* --- patička --- */
-.site-footer { padding: 1rem 1.2rem; color: #777; font-size: .85rem; border-top: 1px solid #e0dccb; margin-top: 2rem; }
+.site-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .8rem; padding: 1rem 1.2rem; color: #777; font-size: .85rem; border-top: 1px solid #e0dccb; flex-shrink: 0; }
+.footer-left a { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: #555; }
+.footer-left img { height: 40px; width: auto; display: block; }
+.footer-left .hiu-name { font-size: .82rem; line-height: 1.25; }
+.footer-right { display: flex; align-items: center; gap: 1rem; }
+.footer-right img { height: 40px; width: auto; display: block; }

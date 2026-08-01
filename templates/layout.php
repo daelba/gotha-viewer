@@ -45,10 +45,20 @@ if ($base === '\\' || $base === '.') {
     </main>
 
     <footer class="site-footer">
-        <p>
-            Data: <a href="https://gotha.wikibase.cloud" target="_blank" rel="noopener">gotha.wikibase.cloud</a>
-            &middot; SPARQL endpoint
-        </p>
+        <div class="footer-left">
+            <a href="https://www.hiu.cas.cz/" target="_blank" rel="noopener" title="Historický ústav AV ČR, v. v. i.">
+                <img src="<?= e($base) ?>/icons/logo-hiu.svg" alt="Historický ústav AV ČR, v. v. i.">
+                <span class="hiu-name">Historický ústav<br>AV ČR, v. v. i.</span>
+            </a>
+        </div>
+        <div class="footer-right">
+            <a href="https://gotha.wikibase.cloud" target="_blank" rel="noopener" title="Powered by Wikibase">
+                <img src="<?= e($base) ?>/icons/powered-by-wikibase.svg" alt="Powered by Wikibase">
+            </a>
+            <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.cs" target="_blank" rel="noopener" title="CC BY-SA 4.0">
+                <img src="<?= e($base) ?>/icons/cc-by-sa.svg" alt="CC BY-SA">
+            </a>
+        </div>
     </footer>
 
     <script src="<?= e($base) ?>/js/app.js" defer></script>
