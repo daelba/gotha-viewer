@@ -30,6 +30,9 @@ final class I18n
             'family.other_family_icon' => 'Ikona jiného rodu',
             'family.dup_link'          => 'Přejít na druhý výskyt osoby',
             'family.dup_link_icon'     => 'Ikona přepnutí na druhý box',
+            'family.zoom_in'           => 'Přiblížit',
+            'family.zoom_out'          => 'Oddálit',
+            'family.zoom_reset'        => 'Obnovit 100 %',
 
             'family.back'      => 'Zpět na seznam rodů',
             'person.detail'    => 'Detail osoby',
@@ -62,6 +65,9 @@ final class I18n
             'family.other_family_icon' => 'Symbol für anderes Geschlecht',
             'family.dup_link'          => 'Zur anderen Position der Person wechseln',
             'family.dup_link_icon'     => 'Symbol für Wechsel zum zweiten Feld',
+            'family.zoom_in'           => 'Vergrößern',
+            'family.zoom_out'          => 'Verkleinern',
+            'family.zoom_reset'        => 'Auf 100 % zurücksetzen',
 
 
             'family.back'      => 'Zurück zur Übersicht',
@@ -95,6 +101,9 @@ final class I18n
             'family.other_family_icon' => 'Other family icon',
             'family.dup_link'          => 'Jump to the other instance of this person',
             'family.dup_link_icon'     => 'Jump-to-other-instance icon',
+            'family.zoom_in'           => 'Zoom in',
+            'family.zoom_out'          => 'Zoom out',
+            'family.zoom_reset'        => 'Reset to 100 %',
 
 
             'family.back'      => 'Back to families',

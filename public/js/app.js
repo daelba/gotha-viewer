@@ -46,7 +46,7 @@
             targetNode.classList.add('hl');
             // mírné zpoždění kvůli layoutu; bez smooth, ať to neseká při načtení
             setTimeout(function () {
-                targetNode.scrollIntoView({ block: 'center', inline: 'center' });
+                scrollNodeIntoView(targetNode, false);
             }, 50);
         }
     }
@@ -108,6 +108,10 @@
     /* ---- klik na box osoby ---- */
     Array.prototype.forEach.call(nodes, function (node) {
         node.addEventListener('click', function () {
+            if (window.gvSuppressNextClick) { // po drag-to-pan gestu klik ignorujeme
+                window.gvSuppressNextClick = false;
+                return;
+            }
             loadPerson(node.getAttribute('data-id'));
         });
     });
@@ -130,8 +134,114 @@
             if (!target) return;
             Array.prototype.forEach.call(nodes, function (n) { n.classList.remove('hl'); });
             target.classList.add('hl');
-            target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            scrollNodeIntoView(target, true);
         }, true);
+    }
+
+    /* ---- zoom + pan stromu ----
+     * .tree-viewport je rodič se scrollem, uvnitř je .tree-canvas s transformem.
+     * Při změně zoomu škálujeme i spacer (drží rozměry scroll zóny) – bez toho
+     * by transformovaný obsah „vyplaval" mimo scrollovatelnou plochu. */
+    var viewport = document.getElementById('tree-viewport');
+    var zoomLabel = document.getElementById('zoom-level');
+    var btnIn = document.getElementById('zoom-in');
+    var btnOut = document.getElementById('zoom-out');
+    var btnReset = document.getElementById('zoom-reset');
+
+    var ZOOM_STEP = 1.25;
+    var SCALE_MIN = 0.4;
+    var SCALE_MAX = 2.5;
+    var state = { scale: 1 };
+
+    /** Souředí zvýrazněný box ve viewportu – funguje i při zoomu ≠ 1,
+     *  na rozdíl od nativního scrollIntoView, které transform ignoruje. */
+    function scrollNodeIntoView(node, smooth) {
+        if (!viewport || !node) return;
+        var v = viewport.getBoundingClientRect();
+        var n = node.getBoundingClientRect();
+        var dx = (n.left + n.width / 2) - (v.left + v.width / 2);
+        var dy = (n.top + n.height / 2) - (v.top + v.height / 2);
+        viewport.scrollBy({
+            left: dx,
+            top: dy,
+            behavior: smooth ? 'smooth' : 'auto',
+        });
+    }
+
+    if (canvas && viewport) {
+        var apply = function () {
+            canvas.style.width = canvas.scrollWidth + 'px';
+            canvas.style.height = canvas.scrollHeight + 'px';
+            canvas.style.transform = 'scale(' + state.scale + ')';
+            if (zoomLabel) {
+                zoomLabel.textContent = Math.round(state.scale * 100) + ' %';
+            }
+        };
+
+        var setScale = function (next, pivotX, pivotY) {
+            var s = Math.max(SCALE_MIN, Math.min(SCALE_MAX, next));
+            if (s === state.scale) return;
+
+            var r = viewport.getBoundingClientRect();
+            if (pivotX == null) { pivotX = r.left + r.width / 2; }
+            if (pivotY == null) { pivotY = r.top + r.height / 2; }
+
+            // pozice pivotu v souřadnicích stromu před změnou
+            var px = (viewport.scrollLeft + (pivotX - r.left)) / state.scale;
+            var py = (viewport.scrollTop + (pivotY - r.top)) / state.scale;
+
+            state.scale = s;
+            apply();
+
+            // pivot držíme na místě
+            viewport.scrollLeft = px * state.scale - (pivotX - r.left);
+            viewport.scrollTop = py * state.scale - (pivotY - r.top);
+        };
+
+        // tlačítka
+        if (btnIn) btnIn.addEventListener('click', function () { setScale(state.scale * ZOOM_STEP); });
+        if (btnOut) btnOut.addEventListener('click', function () { setScale(state.scale / ZOOM_STEP); });
+        if (btnReset) btnReset.addEventListener('click', function () { setScale(1); });
+
+        // Kolečko myši = zoom kolem kurzoru (klasický scroll nahradí drag-to-pan)
+        viewport.addEventListener('wheel', function (e) {
+            e.preventDefault();
+            var dir = e.deltaY > 0 ? -1 : 1;
+            setScale(state.scale * (dir > 0 ? ZOOM_STEP : 1 / ZOOM_STEP), e.clientX, e.clientY);
+        }, { passive: false });
+
+        // drag-to-pan na prázdné ploše (ne na boxech – ty mají vlastní klik)
+        var pan = null;
+        var panMoved = false;
+        viewport.addEventListener('mousedown', function (e) {
+            if (e.button !== 0) return;
+            if (e.target.closest && e.target.closest('.node, a, button')) return;
+            pan = { x: e.clientX, y: e.clientY, sx: viewport.scrollLeft, sy: viewport.scrollTop };
+            panMoved = false;
+            e.preventDefault();
+        });
+        document.addEventListener('mousemove', function (e) {
+            if (!pan) return;
+            var dx = e.clientX - pan.x;
+            var dy = e.clientY - pan.y;
+            if (!panMoved && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+            panMoved = true;
+            viewport.style.cursor = 'grabbing';
+            viewport.scrollLeft = pan.sx - dx;
+            viewport.scrollTop = pan.sy - dy;
+        });
+        document.addEventListener('mouseup', function () {
+            if (!pan) return;
+            if (panMoved) {
+                // potlač následný "click" po drag gestu (jinak by se otevřel panel)
+                window.gvSuppressNextClick = true;
+            }
+            pan = null;
+            panMoved = false;
+            viewport.style.cursor = '';
+        });
+
+        apply();
     }
 
     /* ---- hledání ve stromě ---- */
@@ -142,7 +252,7 @@
             Array.prototype.forEach.call(nodes, function (n) { n.classList.remove('hl'); });
             if (node) {
                 node.classList.add('hl');
-                node.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                scrollNodeIntoView(node, true);
             }
         };
 

@@ -43,7 +43,20 @@ main { padding: 1.2rem; max-width: 100%; flex: 1; min-height: 0; overflow: hidde
 .tree-search-results li:hover { background: #f0ede0; }
 
 .family { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-.tree-canvas { position: relative; overflow: auto; border: 1px solid #ddd8c5; background: #fff; min-height: 0; flex: 1; }
+
+/* Toolbar se zoom ovladači */
+.tree-toolbar { display: flex; align-items: center; gap: .4rem; margin-bottom: .4rem; }
+.tree-toolbar .zoom-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 30px; padding: 0 .5rem; border: 1px solid #c5c0ae; border-radius: 4px; background: #f6f4ec; cursor: pointer; font-size: 1rem; line-height: 1; }
+.tree-toolbar .zoom-btn:hover { background: #ecead9; }
+.tree-toolbar .zoom-btn:active { background: #e2decb; }
+.tree-toolbar .zoom-level { font-size: .85rem; color: #6d6850; min-width: 3.2em; text-align: center; }
+
+/* Zoomovatelný strom:
+ * .tree-viewport drží viditelný výřez a přebírá scrollování.
+ * .tree-canvas je vnitřní "papír" s fixní velikostí, který se transformem
+ * škáluje (transform-origin 0 0 → výpočet pozic je přímočarý). */
+.tree-viewport { position: relative; overflow: auto; border: 1px solid #ddd8c5; background: #fdfcf7; flex: 1; min-height: 0; }
+.tree-canvas { position: relative; overflow: visible; background: #fff; transform-origin: 0 0; }
 #tree-edges { position: absolute; left: 30px; top: 20px; }
 #tree-edges path.marriage { stroke: #a59371; stroke-width: 2; }
 #tree-edges path.child { stroke: #8f9e8f; stroke-width: 1.5; }
