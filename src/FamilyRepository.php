@@ -95,7 +95,7 @@ SPARQL, self::sanitizeQid($qid) ?? 'Q0'));
 
     /**
      * Všichni členové rodu + vztahy (otec/matka/partner).
-     * @return array<int,array{id:string,labels:array,gender:?string,birth:?string,death:?string,wd:?string,father:?string,mother:?string,partners:array<int,string>,titles:array<int,string>,kid?:bool}>|null
+     * @return array<int,array{id:string,labels:array,gender:?string,birth:?string,death:?string,wd:?string,father:?string,mother:?string,partners:array<int,string>,titles:array<int,string>,kid?:bool,other_families?:array}>|null
      */
     public function members(string $familyQid): ?array
     {
@@ -112,6 +112,10 @@ SELECT ?item ?pohl (SAMPLE(?cs) AS ?labelCs) (SAMPLE(?de) AS ?labelDe) (SAMPLE(?
        (GROUP_CONCAT(DISTINCT ?ma;separator="|") AS ?matkaIds)
        (GROUP_CONCAT(DISTINCT ?pa;separator="|") AS ?partnerIds)
        (GROUP_CONCAT(DISTINCT ?tit;separator="|") AS ?titulIds)
+       (GROUP_CONCAT(DISTINCT ?rodQ;separator="|") AS ?dalsiRodyQid)
+       (GROUP_CONCAT(DISTINCT ?rodNazevCs;separator="~") AS ?dalsiNazevCs)
+       (GROUP_CONCAT(DISTINCT ?rodNazevDe;separator="~") AS ?dalsiNazevDe)
+       (GROUP_CONCAT(DISTINCT ?rodNazevEn;separator="~") AS ?dalsiNazevEn)
 WHERE {
   {
     ?item gdt:P39 gd:%s . BIND(1 AS ?kid)
@@ -137,8 +141,18 @@ WHERE {
   OPTIONAL { ?item gdt:P4 ?ma }
   OPTIONAL { ?item gdt:P32 ?pa }
   OPTIONAL { ?item gdt:P38 ?tit }
+  # Další rody (P39) kromě aktuálního. QID + názvy oddělenými sloupci
+  # (labely spojujeme separátorem "~", který se v názvech rodů nevyskytuje).
+  OPTIONAL {
+    ?item gdt:P39 ?rodItem .
+    FILTER(?rodItem != gd:%s)
+    BIND(STR(?rodItem) AS ?rodQ)
+    OPTIONAL { ?rodItem rdfs:label ?rodNazevCs . FILTER(LANG(?rodNazevCs)="cs") }
+    OPTIONAL { ?rodItem rdfs:label ?rodNazevDe . FILTER(LANG(?rodNazevDe)="de") }
+    OPTIONAL { ?rodItem rdfs:label ?rodNazevEn . FILTER(LANG(?rodNazevEn)="en") }
+  }
 } GROUP BY ?item ?pohl
-SPARQL, $safe, $safe));
+SPARQL, $safe, $safe, $safe));
 
         if ($rows === null) {
             return null;
@@ -167,6 +181,7 @@ SPARQL, $safe, $safe));
                 'partners' => self::uriList($r, 'partnerIds'),
                 'titles'   => self::uriList($r, 'titulIds'),
                 'kid'      => self::val($r, 'fromChild') !== '1',
+                'other_families' => self::otherFamilies($r),
             ];
         }
 
@@ -270,6 +285,40 @@ SPARQL, $safe));
         foreach (explode('|', $v) as $uri) {
             $pos = strrpos($uri, '/');
             $out[] = $pos === false ? $uri : substr($uri, $pos + 1);
+        }
+        return $out;
+    }
+
+    /**
+     * Sestaví seznam dalších rodů (P39) kromě aktuálního.
+     * Labely z GROUP_CONCAT jsou oddělené "~", QIDy "|".
+     * Protože se v datech nevyskytují osoby s více než ~3 dalšími rody,
+     * postačuje jednoduchá mapa po pořadí.
+     *
+     * @return array<int,array{id:string,labels:array{cs:?string,de:?string,en:?string}}>
+     */
+    private static function otherFamilies(array $row): array
+    {
+        $qids = self::uriList($row, 'dalsiRodyQid');
+        if ($qids === []) {
+            return [];
+        }
+        $cs = self::val($row, 'dalsiNazevCs') ?? '';
+        $de = self::val($row, 'dalsiNazevDe') ?? '';
+        $en = self::val($row, 'dalsiNazevEn') ?? '';
+        $csA = $cs !== '' ? explode('~', $cs) : [];
+        $deA = $de !== '' ? explode('~', $de) : [];
+        $enA = $en !== '' ? explode('~', $en) : [];
+        $out = [];
+        foreach ($qids as $i => $qid) {
+            $out[] = [
+                'id'     => $qid,
+                'labels' => [
+                    'cs' => $csA[$i] ?? null,
+                    'de' => $deA[$i] ?? null,
+                    'en' => $enA[$i] ?? null,
+                ],
+            ];
         }
         return $out;
     }

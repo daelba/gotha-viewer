@@ -35,6 +35,21 @@
     var panel = document.getElementById(f.panel);
     var panelContent = document.getElementById(f.panelContent);
     var panelClose = document.getElementById(f.panelClose);
+    var nodes = canvas ? canvas.querySelectorAll('.node') : [];
+
+    /* ---- přechod z jiného rodu: scroll + zvýraznění osoby (#p=QID) ---- */
+    var hashM = /^#p=(Q[0-9]+)$/.exec(window.location.hash || '');
+    if (hashM) {
+        var targetNode = canvas ? canvas.querySelector('[data-id="' + hashM[1] + '"]') : null;
+        if (targetNode) {
+            Array.prototype.forEach.call(nodes, function (n) { n.classList.remove('hl'); });
+            targetNode.classList.add('hl');
+            // mírné zpoždění kvůli layoutu; bez smooth, ať to neseká při načtení
+            setTimeout(function () {
+                targetNode.scrollIntoView({ block: 'center', inline: 'center' });
+            }, 50);
+        }
+    }
 
     /* ---- postranní panel ---- */
     function openPanel() { panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); }
@@ -53,7 +68,7 @@
     function loadPerson(qid) {
         openPanel();
         panelContent.innerHTML = '<p class="muted">' + esc(f.loadingText) + '</p>';
-        fetch(f.api + encodeURIComponent(qid), { headers: { 'Accept': 'application/json' } })
+        fetch(f.api + encodeURIComponent(qid) + '?force', { headers: { 'Accept': 'application/json' } })
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (data.error) {
@@ -61,8 +76,17 @@
                     return;
                 }
                 var html = '<h3>' + esc(data.name) + '</h3>';
-                html += '<p class="muted"><a class="wb-link" href="https://gotha.wikibase.cloud/wiki/Item:' +
-                        encodeURIComponent(data.id) + '" target="_blank" rel="noopener">' + esc(data.id) + ' ↗</a></p>';
+                var links = '<div class="person-links">';
+                links += '<a class="wb-link" href="https://gotha.wikibase.cloud/wiki/Item:' +
+                        encodeURIComponent(data.id) + '" target="_blank" rel="noopener">' + esc(data.id) + ' ↗</a>';
+                if (data.wikidataId) {
+                    links += '<a class="ext-link" href="https://www.wikidata.org/wiki/' + encodeURIComponent(data.wikidataId) +
+                            '" target="_blank" rel="noopener" title="Wikidata"><img src="' + f.base + '/icons/wikidata.svg" alt="Wikidata"></a>';
+                    links += '<a class="ext-link" href="https://entitree.com/en/family_tree/' + encodeURIComponent(data.wikidataId) +
+                            '" target="_blank" rel="noopener" title="Entitree"><img src="' + f.base + '/icons/entitree.png" alt="Entitree"></a>';
+                }
+                links += '</div>';
+                html += links;
                 if (data.wikidataImage) {
                     html += '<img class="person-photo" src="' + esc(data.wikidataImage) + '" alt="">';
                 }
@@ -82,12 +106,33 @@
     }
 
     /* ---- klik na box osoby ---- */
-    var nodes = canvas ? canvas.querySelectorAll('.node') : [];
     Array.prototype.forEach.call(nodes, function (node) {
         node.addEventListener('click', function () {
             loadPerson(node.getAttribute('data-id'));
         });
     });
+
+    /* ---- navigace mezi duplicitními instancemi osoby ----
+     * Osoba, která je zároveň rodičem a dítětem v tomto stromu,
+     * je vykreslena dvakrát. Ikona s třídou .node-dup-link nese v
+     * data-goto HTML id "druhého" boxu. Klik ji posune do středu a
+     * zvýrazní. Zároveň zruší klik-bublání na boxu, aby se neotvíral
+     * postranní panel. */
+    if (canvas) {
+        canvas.addEventListener('click', function (e) {
+            var a = e.target && e.target.closest ? e.target.closest('.node-dup-link') : null;
+            if (!a) return;
+            e.preventDefault();
+            e.stopPropagation();
+            var gotoId = a.getAttribute('data-goto');
+            if (!gotoId) return;
+            var target = document.getElementById(gotoId);
+            if (!target) return;
+            Array.prototype.forEach.call(nodes, function (n) { n.classList.remove('hl'); });
+            target.classList.add('hl');
+            target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        }, true);
+    }
 
     /* ---- hledání ve stromě ---- */
     var search = document.getElementById(f.searchInput);
@@ -108,11 +153,15 @@
                 results.style.display = 'none';
                 return;
             }
-            var matches = [];
+            // hledání podřetězce kdekoli v jménu (prefixové shody řadíme na začátek)
+            var matches = [], prefix = [];
             Array.prototype.forEach.call(nodes, function (node) {
                 var label = node.getAttribute('data-label') || '';
-                if (label.indexOf(q) !== -1) matches.push(node);
+                var idx = label.indexOf(q);
+                if (idx === 0) prefix.push(node);
+                else if (idx > 0) matches.push(node);
             });
+            matches = prefix.concat(matches);
             if (!matches.length) {
                 results.style.display = 'none';
                 return;

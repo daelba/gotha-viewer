@@ -79,6 +79,19 @@ check "CSS je dostupné" "$BASE/css/style.css"
 check "JS je dostupné" "$BASE/js/app.js"
 check "Ikona Wikidata je dostupná" "$BASE/icons/wikidata.svg"
 
+# Statické TreeBuilder testy (regrese na konkrétních rodinách)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+for t in "$SCRIPT_DIR"/tree_*.php; do
+    [ -f "$t" ] || continue
+    name=$(basename "$t")
+    if php "$t" > /dev/null 2>&1; then
+        echo "  OK   $name"
+    else
+        echo "  FAIL $name"
+        FAIL=1
+    fi
+done
+
 echo
 if [ "$FAIL" = 0 ]; then
     echo "VŠECHNY SMOKE TESTY PROŠLY ✔"

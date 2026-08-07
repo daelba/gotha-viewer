@@ -15,6 +15,7 @@ if ($base === '\\' || $base === '.') {
     <?php if (empty($families)): ?>
         <p class="flash"><?= e(t('families.empty')) ?></p>
     <?php else: ?>
+    <div class="families-table-wrap">
     <table class="families-table" id="families-table">
         <thead>
             <tr>
@@ -48,6 +49,7 @@ if ($base === '\\' || $base === '.') {
         <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
     <?php endif; ?>
 </section>
 

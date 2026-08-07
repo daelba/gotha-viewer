@@ -51,10 +51,19 @@ final class ApiController
             ];
         }
 
+        $wikidataId = null;
+        foreach ($person['claims'] as $c) {
+            if ($c['pid'] === 'P10') {
+                $wikidataId = $c['value'];
+                break;
+            }
+        }
+
         echo json_encode([
-            'id'     => $id,
-            'name'   => $name,
-            'claims' => $claimsOut,
+            'id'          => $id,
+            'name'        => $name,
+            'wikidataId'  => $wikidataId,
+            'claims'      => $claimsOut,
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 }

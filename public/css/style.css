@@ -22,6 +22,8 @@ main { padding: 1.2rem; max-width: 100%; flex: 1; min-height: 0; overflow: hidde
 .flash-error { background: #faeaea; border-color: #e5bcbc; color: #7a2828; }
 
 /* --- tabulka rodů --- */
+.families { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.families-table-wrap { flex: 1; overflow-y: auto; min-height: 0; }
 .toolbar { display: flex; gap: 1rem; align-items: center; margin-bottom: .8rem; }
 .toolbar input[type=search] { padding: .5rem .8rem; min-width: 280px; border: 1px solid #c5c0ae; border-radius: 4px; font-size: 1rem; }
 .muted { color: #888; font-size: .85rem; }
@@ -47,12 +49,20 @@ main { padding: 1.2rem; max-width: 100%; flex: 1; min-height: 0; overflow: hidde
 #tree-edges path.child { stroke: #8f9e8f; stroke-width: 1.5; }
 
 .node { position: absolute; width: 210px; height: 84px; padding: .45rem .6rem; background: #f6f4ec; border: 1px solid #b9b29a; border-radius: 6px; cursor: pointer; box-shadow: 1px 2px 4px rgba(0,0,0,.08); box-sizing: border-box; }
+.node-other-families { position: absolute; top: 6px; right: 6px; display: flex; gap: 3px; }
+.node-family-link { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; color: #555; text-decoration: none; opacity: .85; background: rgba(255,255,255,.6); box-shadow: 0 0 0 1px rgba(0,0,0,.08); transition: background .15s; }
+.node-family-link:hover { background: rgba(255,255,255,.95); opacity: 1; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+.node-family-link img { width: 16px; height: 16px; display: block; filter: grayscale(100%); }
+.node-family-link:hover img { filter: none; }
 .node:hover { border-color: #37517e; }
 .node--male   { background: #d9e9f5; } /* muži: světle modrá */
 .node--female { background: #f5d9dc; } /* ženy: světle růžová */
-.node .name { font-weight: 700; font-size: .92rem; line-height: 1.2; }
+.node .name { font-weight: 700; font-size: .92rem; line-height: 1.2; padding-right: 32px; }
 .node .years { color: #6d6850; font-size: .82rem; }
 .node.hl { outline: 3px solid #d4a017; background: #fff8e1; }
+/* Druhá instance osoby (např. dcera, která je zároveň manželkou) – viz $dups v family.php.
+ * Vypadá stejně jako primární box (jen ikona .node-dup-link v rohu indikuje navigaci
+ * na druhý box). */
 
 /* --- postranní panel --- */
 .person-panel { position: fixed; top: 0; right: -420px; width: 400px; max-width: 92vw; height: 100vh; background: #fff; border-left: 1px solid #c5c0ae; box-shadow: -4px 0 12px rgba(0,0,0,.15); padding: 1.2rem; overflow-y: auto; transition: right .25s ease; z-index: 100; }
@@ -63,6 +73,14 @@ main { padding: 1.2rem; max-width: 100%; flex: 1; min-height: 0; overflow: hidde
 .person-panel table { border-collapse: collapse; width: 100%; font-size: .9rem; }
 .person-panel th, .person-panel td { border-bottom: 1px solid #eee; padding: .35rem .4rem; text-align: left; vertical-align: top; }
 .person-panel th { width: 40%; color: #555; font-weight: 600; }
+
+/* --- odkazy v panelu --- */
+.person-links { display: flex; gap: .8rem; align-items: center; margin: .6rem 0; }
+.person-links .wb-link { font-size: .85rem; color: #888; text-decoration: none; }
+.person-links .wb-link:hover { text-decoration: underline; }
+.person-links .ext-link { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 4px; opacity: .8; transition: opacity .15s; }
+.person-links .ext-link:hover { opacity: 1; background: #f0ede0; }
+.person-links .ext-link img { height: 20px; width: auto; display: block; }
 
 /* --- patička --- */
 .site-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .8rem; padding: 1rem 1.2rem; color: #777; font-size: .85rem; border-top: 1px solid #e0dccb; flex-shrink: 0; }

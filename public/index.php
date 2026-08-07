@@ -86,12 +86,14 @@ if (is_string($familyId) && preg_match('/^Q[1-9][0-9]*$/', $familyId) === 1) {
     } else {
         $members = $repo->members($familyId) ?? [];
         $hasMembers = count($members) > 0;
-        $layout = $hasMembers ? TreeBuilder::layout($members) : ['families' => [], 'people' => [], 'order' => []];
+        $layout = $hasMembers ? TreeBuilder::layout($members) : ['families' => [], 'people' => [], 'order' => [], 'dups' => [], 'couples' => []];
+
         $content = View::render('family', [
             'family'     => $family,
             'members'    => $members,
             'tree'       => $layout,
-            'edges'      => $hasMembers ? TreeBuilder::edges($layout['families'], $layout['people']) : [],
+            'edges'      => $hasMembers ? TreeBuilder::edges($layout['families'], $layout['people'], $layout['dups'], $layout['couples']) : [],
+
             'cellW'      => TreeBuilder::CELL_W,
             'cellH'      => TreeBuilder::CELL_H,
             'hasMembers' => $hasMembers,

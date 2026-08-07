@@ -26,6 +26,11 @@ final class I18n
             'families.empty'   => 'Nebyly nalezeny žádné rody.',
             'family.no_members'=> 'Tento rod zatím nemá v databázi žádné zaznamenané osoby.',
             'family.search'    => 'Hledat osobu ve stromu…',
+            'family.other_family'      => 'Přechod na rod %s',
+            'family.other_family_icon' => 'Ikona jiného rodu',
+            'family.dup_link'          => 'Přejít na druhý výskyt osoby',
+            'family.dup_link_icon'     => 'Ikona přepnutí na druhý box',
+
             'family.back'      => 'Zpět na seznam rodů',
             'person.detail'    => 'Detail osoby',
             'person.loading'   => 'Načítám…',
@@ -53,6 +58,12 @@ final class I18n
             'families.empty'   => 'Keine Geschlechter gefunden.',
             'family.no_members'=> 'Für dieses Geschlecht sind noch keine Personen erfasst.',
             'family.search'    => 'Person im Stammbaum suchen…',
+            'family.other_family'      => 'Wechsel zum Geschlecht %s',
+            'family.other_family_icon' => 'Symbol für anderes Geschlecht',
+            'family.dup_link'          => 'Zur anderen Position der Person wechseln',
+            'family.dup_link_icon'     => 'Symbol für Wechsel zum zweiten Feld',
+
+
             'family.back'      => 'Zurück zur Übersicht',
             'person.detail'    => 'Personendetail',
             'person.loading'   => 'Laden…',
@@ -80,6 +91,12 @@ final class I18n
             'families.empty'   => 'No families found.',
             'family.no_members'=> 'No persons recorded for this family yet.',
             'family.search'    => 'Search person in tree…',
+            'family.other_family'      => 'Go to family %s',
+            'family.other_family_icon' => 'Other family icon',
+            'family.dup_link'          => 'Jump to the other instance of this person',
+            'family.dup_link_icon'     => 'Jump-to-other-instance icon',
+
+
             'family.back'      => 'Back to families',
             'person.detail'    => 'Person detail',
             'person.loading'   => 'Loading…',
