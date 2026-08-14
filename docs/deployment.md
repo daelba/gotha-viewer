@@ -56,16 +56,18 @@ chmod 777 cache          # nebo chown www-data:www-data cache
 
 ## Konfigurace
 
-Celá konfigurace je v `src/SparqlClient.php` (URL endpointu) a `src/I18n.php` (slovník).
-Pro produkční nasazení není nic jiného potřeba měnit.
+Viewer se připojuje na **gotha-api** (cachující proxy nad gotha.wikibase.cloud).
+Výchozí URL je vestavěná v `src/ApiClient.php`; v `.env` lze přepsat klíčem
+`API_BASE=https://tools.daelba.eu/gotha/api/v1` (bez koncového lomítka).
+Slovník je v `src/I18n.php`. SPARQL dotazy viewer neskládá – nic dalšího se nemění.
 
 ## Kontrola po nasazení
 
 1. Otevřít `/` – měla by se načíst tabulka rodů.
 2. Kliknout na libovolný rod – genealogický strom, hledání funguje.
-3. Kliknout na osobu – postraní panel s detaily.
+3. Kliknout na osobu – postraní panel s detaily (data z gotha-api).
 4. Výběr jazyka (vlaječky) – stránka se překreslí.
-5. „Aktualizovat data" – vymaže cache, refresh.
+5. „Aktualizovat data" – pošle `?force=1` do gotha-api a znovu načte data.
 
 ## Smoke testy
 

@@ -1,7 +1,9 @@
 # Gotha viewer
 
 Tenký PHP/HTML prohlížeč šlechtických rodů z [gotha.wikibase.cloud](https://gotha.wikibase.cloud).
-Data získává SPARQL dotazy na endpoint `https://gotha.wikibase.cloud/query/sparql`.
+Surová data získává výhradně přes **gotha-api** (`https://tools.daelba.eu/gotha/api/v1`),
+která je cachující proxy nad SPARQL endpointem `https://gotha.wikibase.cloud/query/sparql`.
+Viewer sám žádné SPARQL dotazy nesestavuje.
 
 ## Funkce
 
@@ -10,8 +12,8 @@ Data získává SPARQL dotazy na endpoint `https://gotha.wikibase.cloud/query/sp
 - **Detail rodu**: genealogický strom (vlastní CSS+SVG, žádná externí knihovna),
   hledání osob v reálném čase (scroll + zvýraznění), postraní panel s detaily osoby.
 - **Jazyky**: čeština (výchozí), němčina, angličtina – přepínač vlaječkami.
-- **Cache**: souborová cache pro SPARQL výsledky (TTL 24 hodin), tlačítko
-  „Aktualizovat data" pro okamžité obnovení.
+- **Cache**: primární cache je v gotha-api (TTL 24 hodin); tlačítko
+  „Aktualizovat data" posílá `?force=1` a obnoví data přímo v API.
 
 ## Nasazení
 
@@ -28,7 +30,7 @@ Viz [docs/deployment.md](docs/deployment.md).
 - `/` – seznam všech rodů
 - `/family/{QID}` – detail rodu + strom
 - `/api/person/{QID}` – JSON detail osoby (AJAX z postranního panelu)
-- `/refresh` – vyprázdnění cache a návrat na předchozí stránku
+- `/refresh` – přidá `?force=1` do aktuální URL (gotha-api přeskočí cache) a vrátí se zpět
 
 ## Ikony
 

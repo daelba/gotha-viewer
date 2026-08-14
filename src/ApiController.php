@@ -2,9 +2,11 @@
 declare(strict_types=1);
 
 /**
- * AJAX API: detail osoby pro postranní panel.
+ * AJAX API: detail entity (osoba / rod) pro postranní panel.
  * GET /api/person.php?id=Q647[&force]
- * Vrací JSON: { id, name, claims: [{plabel, value, vlabel, link?}] }
+ * Vrací JSON: { id, name, wikidataId, claims: [{pid,plabel,value,link?}] }
+ *
+ * Data čerpá výhradně z gotha-api (ApiClient) – bez SPARQL a bez lokální cache.
  */
 final class ApiController
 {
@@ -19,15 +21,9 @@ final class ApiController
             return;
         }
 
-        // volitelné vynucení nového načtení (pro aktualizaci cache jedné osoby)
-        if (isset($_GET['force'])) {
-            // přeskočíme cache jen pro tento request
-            $client = new SparqlClient(new FileCache(CACHE_DIR . '/.tmp'));
-        } else {
-            $client = new SparqlClient(new FileCache(CACHE_DIR));
-        }
-        $repo = new FamilyRepository($client);
-        $person = $repo->person($id);
+        $client = new ApiClient(apiBaseFromEnv());
+        $repo   = new FamilyRepository($client);
+        $person = $repo->entity($id);
 
         if ($person === null) {
             http_response_code(404);
@@ -35,34 +31,20 @@ final class ApiController
             return;
         }
 
-        $name = I18n::pick($person['labels']) ?: $id;
-
         $claimsOut = [];
         foreach ($person['claims'] as $c) {
-            $link = null;
-            if ($c['pid'] === 'P10' && $c['type'] === 'literal') {
-                $link = 'https://www.wikidata.org/wiki/' . rawurlencode($c['value']);
-            }
             $claimsOut[] = [
                 'pid'    => $c['pid'],
                 'plabel' => $c['plabel'],
-                'value'  => $c['vlabel'] ?? $c['value'],
-                'link'   => $link,
+                'value'  => $c['value'],
+                'link'   => $c['link'],
             ];
-        }
-
-        $wikidataId = null;
-        foreach ($person['claims'] as $c) {
-            if ($c['pid'] === 'P10') {
-                $wikidataId = $c['value'];
-                break;
-            }
         }
 
         echo json_encode([
             'id'          => $id,
-            'name'        => $name,
-            'wikidataId'  => $wikidataId,
+            'name'        => $person['label'] !== '' ? $person['label'] : $id,
+            'wikidataId'  => $person['wikidataId'],
             'claims'      => $claimsOut,
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }

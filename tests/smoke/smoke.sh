@@ -50,7 +50,7 @@ check_grep() {
 }
 
 echo "== Gotha viewer smoke testy @ $BASE =="
-echo "POZOR: dotazy na live SPARQL endpoint mohou trvat (při prázdné cache i ~30 s)."
+echo "POZOR: data tečou přes gotha-api; při nezatížené cache mohou některé requesty trvat déle."
 
 check "Úvodní stránka vrací 200" "$BASE/"
 check_grep "Úvodní stránka obsahuje tabulku rodů" "$BASE/" "families-table"

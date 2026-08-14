@@ -25,15 +25,13 @@ require dirname(__DIR__) . '/src/bootstrap.php';
 
 I18n::init();
 
-$cache = new FileCache(CACHE_DIR);
-$sparql = new SparqlClient($cache);
-$repo = new FamilyRepository($sparql);
+$repo = new FamilyRepository(new ApiClient(apiBaseFromEnv()));
 
 // --- RESTful URL mapování ---
 // /                  → seznam rodů
 // /family/{QID}      → detail + strom rodu
 // /api/person/{QID}  → JSON detail osoby (AJAX)
-// /refresh           → vyprázdnit cache + návrat na Referer
+// /refresh           → obnovit data (přeskočit cache v gotha-api) + návrat na Referer
 
 $path = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/', '/');
 // Odstraň prefix aplikace (např. /html/gotha-viewer/public) z URL pro router
@@ -58,10 +56,12 @@ if (isset($_GET['refresh']) || isset($_GET['family']) || isset($_GET['api'])) {
 
 // RESTful akce
 if ($route && $route[0] === 'refresh') {
-    $n = $cache->clear();
-    $_SESSION['flash'] = sprintf(t('action.refreshed'), $n);
-    $back = $_SERVER['HTTP_REFERER'] ?? '/';
-    header('Location: ' . $back);
+    $back = $_SERVER['HTTP_REFERER'] ?? APP_PATH . '/';
+    // předáme ?force=1 dál do API – obnoví cache tam
+    $url = preg_match('/^[?&]/', $back) === 1
+        ? $back . '&force=1'
+        : $back . (parse_url($back, PHP_URL_QUERY) ? '&' : '?') . 'force=1';
+    header('Location: ' . $url);
     exit;
 }
 

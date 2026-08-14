@@ -68,7 +68,7 @@
     function loadPerson(qid) {
         openPanel();
         panelContent.innerHTML = '<p class="muted">' + esc(f.loadingText) + '</p>';
-        fetch(f.api + encodeURIComponent(qid) + '?force', { headers: { 'Accept': 'application/json' } })
+        fetch(f.api + encodeURIComponent(qid), { headers: { 'Accept': 'application/json' } })
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (data.error) {
