@@ -5,8 +5,26 @@
 WEB_ROOT ?= /var/www/html/gotha-viewer
 APP_DOMAIN ?= https://www.daelba.eu
 APP_PATH   ?= /html/gotha-viewer
+# Plná URL vstupní stránky pro smoke testy (na VM1: https://gotha-view.daelba.eu)
+SMOKE_BASE ?= $(APP_DOMAIN)$(APP_PATH)/public
 
-.PHONY: deploy deploy-force smoke smoke-local clean info
+.PHONY: init up down restart logs deploy deploy-force smoke smoke-local clean info
+
+## Docker: sdílená síť proxy-net (idempotentní) + start/stop stacku
+init:
+	@docker network inspect proxy-net >/dev/null 2>&1 || docker network create proxy-net
+
+up: init
+	docker compose up --build -d
+
+down:
+	docker compose down
+
+restart:
+	docker compose up --build -d
+
+logs:
+	docker compose logs -f
 
 ## Nasadit kód do /var/www/html/gotha-viewer (zachová cache)
 deploy:
@@ -47,8 +65,8 @@ deploy-force:
 
 ## Smoke testy na produkci (z .env)
 smoke:
-	@echo "→ Smoke testy na $(APP_DOMAIN)$(APP_PATH)/public"
-	@bash tests/smoke/smoke.sh "$(APP_DOMAIN)$(APP_PATH)/public"
+	@echo "→ Smoke testy na $(SMOKE_BASE)"
+	@bash tests/smoke/smoke.sh "$(SMOKE_BASE)"
 
 ## Smoke testy lokálně (vestavěný PHP server)
 smoke-local:

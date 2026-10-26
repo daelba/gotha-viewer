@@ -5,8 +5,9 @@ DirectoryIndex index.php
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    # Cesta aplikace v URL webu (odpovídá APP_PATH v .env, bez domény).
-    RewriteBase /html/gotha-viewer/public/
+    # RewriteBase záměrně nenastavujeme – relativní substituce vycházejí
+    # z adresáře public/, takže aplikace běží v kořeni domény i v podcestě
+    # (pro podcestu jen doplň APP_PATH do .env, např. /html/gotha-viewer/public).
 
     # Nech existující soubory a adresáře (css, js, icons)
     RewriteCond %{REQUEST_FILENAME} -f [OR]

@@ -1,0 +1,10 @@
+# Do image patří jen public/, src/, templates/ a deploy/ (viz Dockerfile)
+.git/
+.clinerules/
+docs/
+tests/
+todo/
+cache/
+Makefile
+.env
+*.md

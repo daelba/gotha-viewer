@@ -1,0 +1,31 @@
+# Gotha viewer – tenký PHP prohlížeč rodů z gotha.wikibase.cloud
+# (data výhradně přes gotha-api). Veřejný provoz jde přes centrální
+# reverse-proxy ze sdílené sítě proxy-net (nginx šablona
+# reverse-proxy/deploy/nginx/templates/gotha-view.daelba.eu.conf.template
+# v infra repu ~/docker/reverse-proxy). Kontejner nepublikují žádné porty.
+name: gotha-viewer
+
+services:
+  gotha-viewer:
+    build: .
+    image: daelba/gotha-viewer:latest
+    container_name: gotha-viewer
+    volumes:
+      # cache API odpovědí přežije rebuild image
+      - viewer_cache:/var/www/html/cache
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost/') === false ? 1 : 0);"]
+      interval: 30s
+      start_period: 10s
+    networks:
+      - proxy-net
+    restart: unless-stopped
+
+volumes:
+  viewer_cache:
+    name: gotha-viewer-cache
+
+networks:
+  proxy-net:
+    name: proxy-net
+    external: true

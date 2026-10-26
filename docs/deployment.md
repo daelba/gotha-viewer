@@ -1,5 +1,25 @@
 # Deployment
 
+## Docker na VM1 (produkce, gotha-view.daelba.eu)
+
+Produkce běží jako compose projekt `gotha-viewer` na hub VM1
+(`~/docker/gotha-viewer`). Veřejný vstup řeší centrální `reverse-proxy/`
+z infra repa (šablona `reverse-proxy/deploy/nginx/templates/gotha-view.daelba.eu.conf.template`,
+sdílená síť `proxy-net`, TLS přes `make certbot-init` tamtéž).
+
+```bash
+git pull
+make up          # build image + start (idempotentní)
+make logs        # logy Apache/PHP
+make smoke       # smoke testy proti https://gotha-view.daelba.eu (APP_DOMAIN/APP_PATH v .env)
+```
+
+Image kopíruje `public/ src/ templates/` (výjimky v `.dockerignore`),
+DocumentRoot je `public/` a RESTful routing řeší `public/.htaccess`
+(`AllowOverride All` v `deploy/apache/gotha-viewer.conf`). Cache API odpovědí
+žije v named volume `gotha-viewer-cache`, žádná `.env` není potřeba
+(výchozí `APP_PATH=''`, `API_BASE` default z `src/ApiClient.php`).
+
 ## Lokální vývoj
 
 ```bash

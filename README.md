@@ -17,7 +17,8 @@ Viewer sám žádné SPARQL dotazy nesestavuje.
 
 ## Nasazení
 
-Viz [docs/deployment.md](docs/deployment.md).
+Viz [docs/deployment.md](docs/deployment.md). Produkce běží v Dockeru na hub VM1
+jako https://gotha-view.daelba.eu (compose projekt `gotha-viewer` v síti `proxy-net`).
 
 ## Požadavky
 
