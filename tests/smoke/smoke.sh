@@ -79,13 +79,30 @@ check "CSS je dostupné" "$BASE/css/style.css"
 check "JS je dostupné" "$BASE/js/app.js"
 check "Ikona Wikidata je dostupná" "$BASE/icons/wikidata.svg"
 
-# Statické TreeBuilder testy (regrese na konkrétních rodinách)
+# Statické TreeBuilder testy (regrese na konkrétních rodinách).
+# PHP CLI na hostu typicky není → testy se pouštějí v kontejneru gotha-viewer
+# (image obsahuje tests/); fallback je host php, jinak SKIP (ne FAIL).
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+php_run() {
+    local name="$1"
+    if docker compose -f "$PROJECT_ROOT/docker-compose.yml" ps --services --filter status=running 2>/dev/null \
+        | grep -qx gotha-viewer; then
+        docker compose -f "$PROJECT_ROOT/docker-compose.yml" exec -T gotha-viewer \
+            php "/var/www/html/tests/smoke/$name" > /dev/null 2>&1
+    elif command -v php > /dev/null 2>&1; then
+        php "$SCRIPT_DIR/$name" > /dev/null 2>&1
+    else
+        return 127
+    fi
+}
 for t in "$SCRIPT_DIR"/tree_*.php; do
     [ -f "$t" ] || continue
     name=$(basename "$t")
-    if php "$t" > /dev/null 2>&1; then
+    if php_run "$name"; then
         echo "  OK   $name"
+    elif [ $? -eq 127 ]; then
+        echo "  SKIP $name (php není k dispozici – ani host, ani kontejner)"
     else
         echo "  FAIL $name"
         FAIL=1

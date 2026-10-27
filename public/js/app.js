@@ -77,8 +77,9 @@
                 }
                 var html = '<h3>' + esc(data.name) + '</h3>';
                 var links = '<div class="person-links">';
-                links += '<a class="wb-link" href="https://gotha.wikibase.cloud/wiki/Item:' +
-                        encodeURIComponent(data.id) + '" target="_blank" rel="noopener">' + esc(data.id) + ' ↗</a>';
+                // URL entity ve zdrojové Wikibase posílá API (wiki_url); fallback = gotha-wb
+                var wbUrl = data.wikiUrl || ('https://gotha-wb.daelba.eu/wiki/Item:' + encodeURIComponent(data.id));
+                links += '<a class="wb-link" href="' + esc(wbUrl) + '" target="_blank" rel="noopener">' + esc(data.id) + ' ↗</a>';
                 if (data.wikidataId) {
                     links += '<a class="ext-link" href="https://www.wikidata.org/wiki/' + encodeURIComponent(data.wikidataId) +
                             '" target="_blank" rel="noopener" title="Wikidata"><img src="' + f.base + '/icons/wikidata.svg" alt="Wikidata"></a>';

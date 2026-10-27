@@ -177,7 +177,7 @@ final class FamilyRepository
 
         $labels = self::labels($r['labels'] ?? null);
         $label  = self::str($r['label'] ?? null) ?: (I18n::pick($labels) ?: $qid);
-        $wikiUrl = self::str($r['wiki_url'] ?? null);
+        $wikiUrl = self::itemUrl(self::str($r['wiki_url'] ?? null));
 
         $claimsOut = [];
         $wikidataId = null;
@@ -205,10 +205,9 @@ final class FamilyRepository
                         $link = 'https://www.wikidata.org/wiki/' . rawurlencode($wikidataId);
                     }
                 } elseif ($type === 'entity') {
-                    $targetQid = self::str($c['value_uuid'] ?? $rawValue);
-                    if ($targetQid !== null && preg_match('/^Q[1-9][0-9]*$/', $targetQid) === 1) {
-                        $link = APP_PATH . '/person/' . rawurlencode($targetQid);
-                    }
+                    // Entitní hodnoty odkazují přímo na zdrojovou Wikibase
+                    // (API dodává value_url); viewer routu /person/{QID} nemá.
+                    $link = self::itemUrl(self::str($c['value_url'] ?? null));
                 }
                 $claimsOut[] = [
                     'pid'    => (string) $pid,
@@ -232,6 +231,17 @@ final class FamilyRepository
     }
 
     // ---------- pomocné normalizační funkce ----------
+
+    /** Gotha-api posílá URL entit jako /wiki/Q253; kanonická adresa entitní
+     *  stránky je /wiki/Item:Q253 (stejný tvar používal původní wikibase.cloud).
+     *  Až API začne posílat kanonickou variantu, bude tato normalizace no-op. */
+    private static function itemUrl(?string $url): ?string
+    {
+        if ($url === null) {
+            return null;
+        }
+        return preg_replace('~(/wiki/)(Q[1-9][0-9]*)$~', '$1Item:$2', $url, 1) ?? $url;
+    }
 
     private static function str($v): ?string
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  * AJAX API: detail entity (osoba / rod) pro postranní panel.
  * GET /api/person.php?id=Q647[&force]
- * Vrací JSON: { id, name, wikidataId, claims: [{pid,plabel,value,link?}] }
+ * Vrací JSON: { id, name, wikiUrl, wikidataId, claims: [{pid,plabel,value,link?}] }
  *
  * Data čerpá výhradně z gotha-api (ApiClient) – bez SPARQL a bez lokální cache.
  */
@@ -44,6 +44,7 @@ final class ApiController
         echo json_encode([
             'id'          => $id,
             'name'        => $person['label'] !== '' ? $person['label'] : $id,
+            'wikiUrl'     => $person['wiki_url'],
             'wikidataId'  => $person['wikidataId'],
             'claims'      => $claimsOut,
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

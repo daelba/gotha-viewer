@@ -52,7 +52,7 @@ if ($base === '\\' || $base === '.') {
             </a>
         </div>
         <div class="footer-right">
-            <a href="https://gotha.wikibase.cloud" target="_blank" rel="noopener" title="Powered by Wikibase">
+            <a href="https://gotha-wb.daelba.eu" target="_blank" rel="noopener" title="Powered by Wikibase">
                 <img src="<?= e($base) ?>/icons/powered-by-wikibase.svg" alt="Powered by Wikibase">
             </a>
             <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.cs" target="_blank" rel="noopener" title="CC BY-SA 4.0">

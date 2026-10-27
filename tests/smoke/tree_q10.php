@@ -1,8 +1,8 @@
 <?php
 // Regresní test: rodina Q10 (Khevenhüller-Metsch) — osoba Q852 (Johann Franz Khevenhüller)
 // má svazek s manželkou Q851 (8 dětí) a zároveň dítě Q973 z nemanželského vztahu (matka neznámá).
-// Q852 se nesmí přetáhnout níž (na úroveň dětí) ani se svazek s NULL nesmí
-// objevit nahoře (vedlejší union nesmí stáhnout rodiče na jeho úroveň).
+// Q852 se nesmí přetáhnout níž (na úroveň dětí) a jeho vedlejší svazek s NULL leží
+// na stejné úrovni jako rodič — vedle primárního svazku Q852|Q851 (o 2 sloupce vpravo).
 
 declare(strict_types=1);
 require __DIR__ . '/../../src/bootstrap.php';
@@ -47,22 +47,38 @@ $fails = [];
 if (($r['people']['Q852']['y'] ?? null) !== 1) {
     $fails[] = 'Q852.y musí být 1, je ' . var_export($r['people']['Q852']['y'] ?? null, true);
 }
-// Q973 (nemanželské dítě Q852) musí být o 1 pod rodičem (y=2), ne pod fiktivní rodinou Q852|NULL (y=2+1).
+// Q973 (nemanželské dítě Q852) musí být o 1 pod rodičem (y=2).
 if (($r['people']['Q973']['y'] ?? null) !== 2) {
     $fails[] = 'Q973.y musí být 2 (o 1 pod rodičem Q852 na y=1), je ' . var_export($r['people']['Q973']['y'] ?? null, true);
 }
-// svazek Q852|NULL (index 3 ve families) má být na y=2 (pod rodičem)
-$foundNullFam = null;
-foreach ($r['families'] as $fi => $fam) {
+// Jednorodičový svazek Q852|NULL je virtuální uzel čáry NA STEJNÉ ÚROVNI jako
+// primární svazek Q852|Q851 (TreeBuilder jej po korekci generace položí vedle
+// rodičovy fam, o 2 sloupce vpravo). Dřívější očekávání y=2 bylo zastaralé.
+$primFam = null;
+$nullFam = null;
+foreach ($r['families'] as $fam) {
+    if ($fam['f'] === 'Q852' && $fam['m'] === 'Q851') {
+        $primFam = $fam;
+    }
     if ($fam['f'] === 'Q852' && $fam['m'] === null) {
-        $foundNullFam = $fam;
-        break;
+        $nullFam = $fam;
     }
 }
-if ($foundNullFam === null) {
+if ($primFam === null) {
+    $fails[] = 'Primární svazek Q852|Q851 nebyl nalezen ve families.';
+} elseif ($primFam['y'] !== 1) {
+    $fails[] = 'Primární svazek Q852|Q851 musí být na y=1, má y=' . $primFam['y'];
+}
+if ($nullFam === null) {
     $fails[] = 'Svazek Q852|NULL nebyl nalezen ve families.';
-} elseif ($foundNullFam['y'] !== 2) {
-    $fails[] = 'Svazek Q852|NULL musí být na y=2, má y=' . $foundNullFam['y'];
+} else {
+    if ($nullFam['y'] !== 1) {
+        $fails[] = 'Svazek Q852|NULL musí být na y=1 (vedle primární fam), má y=' . $nullFam['y'];
+    }
+    if ($primFam !== null && $nullFam['x'] !== $primFam['x'] + 2) {
+        $fails[] = 'Svazek Q852|NULL má ležet 2 sloupce vpravo od primární fam, má x='
+            . $nullFam['x'] . ' (prim.x=' . $primFam['x'] . ')';
+    }
 }
 
 if ($fails) {

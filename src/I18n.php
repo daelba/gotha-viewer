@@ -14,7 +14,7 @@ final class I18n
     private const DICT = [
         'cs' => [
             'app.title'        => 'Gotha viewer',
-            'app.subtitle'     => 'Šlechtické rody z gotha.wikibase.cloud',
+            'app.subtitle'     => 'Šlechtické rody z gotha-wb.daelba.eu',
             'nav.families'     => 'Rody',
             'action.refresh'   => 'Aktualizovat data',
             'action.refreshed' => 'Cache byla vymazána (%d souborů). Data se načtou znovu.',
@@ -49,7 +49,7 @@ final class I18n
         ],
         'de' => [
             'app.title'        => 'Gotha viewer',
-            'app.subtitle'     => 'Adelsgeschlechter aus gotha.wikibase.cloud',
+            'app.subtitle'     => 'Adelsgeschlechter aus gotha-wb.daelba.eu',
             'nav.families'     => 'Geschlechter',
             'action.refresh'   => 'Daten aktualisieren',
             'action.refreshed' => 'Cache geleert (%d Dateien). Daten werden neu geladen.',
@@ -85,7 +85,7 @@ final class I18n
         ],
         'en' => [
             'app.title'        => 'Gotha viewer',
-            'app.subtitle'     => 'Noble families from gotha.wikibase.cloud',
+            'app.subtitle'     => 'Noble families from gotha-wb.daelba.eu',
             'nav.families'     => 'Families',
             'action.refresh'   => 'Refresh data',
             'action.refreshed' => 'Cache cleared (%d files). Data will be reloaded.',

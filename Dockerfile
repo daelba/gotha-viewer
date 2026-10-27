@@ -24,6 +24,8 @@ RUN a2dissite 000-default && a2ensite gotha-viewer
 COPY public/ /var/www/html/public/
 COPY src/ /var/www/html/src/
 COPY templates/ /var/www/html/templates/
+# statické smoke testy – smoke.sh je pouští v tomto kontejneru (na hostu PHP není)
+COPY tests/ /var/www/html/tests/
 # cache/ musí být zapisovatelná webserverem (při prvním mountu named volume
 # se vlastník převezme do volume)
 RUN install -d -o www-data -g www-data /var/www/html/cache

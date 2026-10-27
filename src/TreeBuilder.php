@@ -561,9 +561,10 @@ final class TreeBuilder
             if (($fam['f'] === null) !== ($fam['m'] === null)) {
                 $singlePid = $fam['f'] ?? $fam['m'];
                 if (isset($people[$singlePid])) {
-                    // Jednorodičový svazek: fam je virtuální uzel vedle rodiče, děti patří
-                    // na úroveň rodič.y+1, tj. pod skutečného rodiče — ne pod fiktivní fam.
-                    // Test Q10: Q852 na y=1, svazek Q852|NULL na y=2, dítě Q973 na y=2.
+                    // Jednorodičový svazek: fam je virtuální uzel čáry vedle rodiče na téže
+                    // úrovni (korekce vyrovnává jen odebrání fiktivní generace), děti patří
+                    // na úroveň rodič.y+1. Test Q10: Q852 na y=1, svazek Q852|NULL vedle
+                    // primární fam na y=1, dítě Q973 na y=2.
                     $baseY = $people[$singlePid]['y'];
                 }
             }
