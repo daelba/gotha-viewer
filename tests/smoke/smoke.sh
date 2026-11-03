@@ -73,6 +73,17 @@ FAMILY_QID="Q135"
 check "Detail rodu ($FAMILY_QID) vrací 200" "$BASE/family/$FAMILY_QID"
 check_grep "Detail rodu obsahuje strom nebo hlášku" "$BASE/family/$FAMILY_QID" "tree-canvas\|family.no_members\|no-members"
 
+# Tlačítko „Aktualizovat data": /refresh musí přesměrovat zpět na stránku rodu
+# s ?force=1 i bez Refereru (centrální proxy nasazuje Referrer-Policy: no-referrer).
+loc=$(curl -sI --max-time 40 "$BASE/refresh?back=%2Ffamily%2F$FAMILY_QID" \
+    | tr -d '\r' | sed -n 's/^[Ll]ocation:[[:space:]]*//p')
+if [[ "$loc" == *"/family/$FAMILY_QID?force=1" ]]; then
+    echo "  OK   /refresh?back přesměruje zpět na stránku rodu s ?force=1"
+else
+    echo "  FAIL /refresh?back → neočekávané Location: '$loc'"
+    FAIL=1
+fi
+
 # API osoby – první node z detailu rodu
 PERSON_QID=$(curl -s --max-time 40 "$BASE/family/$FAMILY_QID" | grep -oP 'data-id="(Q[0-9]+)"' | head -1 | grep -oP 'Q[0-9]+')
 if [ -n "$PERSON_QID" ]; then

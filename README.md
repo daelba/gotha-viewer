@@ -13,7 +13,9 @@ Viewer sám žádné SPARQL dotazy nesestavuje.
   hledání osob v reálném čase (scroll + zvýraznění), postraní panel s detaily osoby.
 - **Jazyky**: čeština (výchozí), němčina, angličtina – přepínač vlaječkami.
 - **Cache**: primární cache je v gotha-api (TTL 24 hodin); tlačítko
-  „Aktualizovat data" posílá `?force=1` a obnoví data přímo v API.
+  „Aktualizovat data" vede na `/refresh?back=<aktuální cesta>`, která
+  přesměruje zpět s `?force=1` a to viewer předá do gotha-api (přeskočí cache
+  a uloží čerstvá data).
 
 ## Nasazení
 
@@ -31,7 +33,9 @@ jako https://gotha-view.daelba.eu (compose projekt `gotha-viewer` v síti `proxy
 - `/` – seznam všech rodů
 - `/family/{QID}` – detail rodu + strom
 - `/api/person/{QID}` – JSON detail osoby (AJAX z postranního panelu)
-- `/refresh` – přidá `?force=1` do aktuální URL (gotha-api přeskočí cache) a vrátí se zpět
+- `/refresh?back=<cesta>` – přesměruje na `<cesta>?force=1` (bez `back` použije
+  Referer, jinak `/`); `force` viewer předá do gotha-api, které přeskočí cache
+  a uloží čerstvá data
 
 ## Postranní panel osoby
 

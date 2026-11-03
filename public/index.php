@@ -25,7 +25,12 @@ require dirname(__DIR__) . '/src/bootstrap.php';
 
 I18n::init();
 
-$repo = new FamilyRepository(new ApiClient(apiBaseFromEnv()));
+$api = new ApiClient(apiBaseFromEnv());
+// ?force=1 v URL → předat do gotha-api (přeskočí tamní cache a data obnoví)
+if (isset($_GET['force'])) {
+    $api->setForce(true);
+}
+$repo = new FamilyRepository($api);
 
 // --- RESTful URL mapování ---
 // /                  → seznam rodů
@@ -56,8 +61,15 @@ if (isset($_GET['refresh']) || isset($_GET['family']) || isset($_GET['api'])) {
 
 // RESTful akce
 if ($route && $route[0] === 'refresh') {
-    $back = $_SERVER['HTTP_REFERER'] ?? APP_PATH . '/';
-    // předáme ?force=1 dál do API – obnoví cache tam
+    // Návratová URL: preferuj explicitní ?back= z vykreslené stránky
+    // (Referer prohlížeč nemusí poslat – proxy nasazuje Referrer-Policy:
+    // no-referrer), jako fallback zkus Referer, jinak úvodní stránku.
+    // back musí být lokální cesta od kořene („/", ne „//") – prevence open-redirect.
+    $back = $_GET['back'] ?? '';
+    if (!is_string($back) || preg_match('#^/(?!/)#', $back) !== 1) {
+        $back = $_SERVER['HTTP_REFERER'] ?? (APP_PATH . '/');
+    }
+    // ?force=1 na návratové URL: při načtení stránky ho viewer předá dál do API
     $url = preg_match('/^[?&]/', $back) === 1
         ? $back . '&force=1'
         : $back . (parse_url($back, PHP_URL_QUERY) ? '&' : '?') . 'force=1';

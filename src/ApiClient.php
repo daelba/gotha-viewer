@@ -31,6 +31,7 @@ final class ApiClient
     private const TIMEOUT = 30;
 
     private string $base;
+    private bool $force = false;
 
     public function __construct(?string $base = null)
     {
@@ -43,6 +44,15 @@ final class ApiClient
             }
         }
         $this->base = rtrim($base, '/');
+    }
+
+    /**
+     * Vynutí čerstvá data z gotha-api: ke všem dotazům přidá ?force=1,
+     * čímž API přeskočí svou cache a uloží právě načtený výsledek.
+     */
+    public function setForce(bool $force): void
+    {
+        $this->force = $force;
     }
 
     /** @return array<int,array<string,mixed>> */
@@ -104,6 +114,9 @@ final class ApiClient
      */
     private function get(string $path, array $query = []): array
     {
+        if ($this->force && !isset($query['force'])) {
+            $query['force'] = '1';
+        }
         $url = $this->base . $path;
         if ($query !== []) {
             $url .= '?' . http_build_query($query, '', '&');

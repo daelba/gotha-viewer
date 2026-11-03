@@ -24,6 +24,9 @@ final class ApiController
         }
 
         $client = new ApiClient(apiBaseFromEnv());
+        if (isset($_GET['force'])) {
+            $client->setForce(true);
+        }
         $repo   = new FamilyRepository($client);
         $person = $repo->entity($id);
 

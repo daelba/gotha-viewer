@@ -6,6 +6,13 @@ $base = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/\\');
 if ($base === '\\' || $base === '.') {
     $base = '';
 }
+// Cíl tlačítka „Aktualizovat data" – aktuální stránka (nelze spoléhat na
+// Referer, proxy nasazuje Referrer-Policy: no-referrer).
+$refreshBack = '/';
+$famId = $_GET['family'] ?? '';
+if (is_string($famId) && preg_match('/^Q[1-9][0-9]*$/', $famId) === 1) {
+    $refreshBack = '/family/' . $famId;
+}
 ?>
 <!doctype html>
 <html lang="<?= e($lang) ?>">
@@ -30,7 +37,7 @@ if ($base === '\\' || $base === '.') {
                 </a>
             <?php endforeach; ?>
         </nav>
-        <a class="action-refresh" href="<?= e($base) ?>/refresh" title="<?= e(t('action.refresh')) ?>">
+        <a class="action-refresh" href="<?= e($base) ?>/refresh?back=<?= rawurlencode($refreshBack) ?>" title="<?= e(t('action.refresh')) ?>">
             &#x21bb; <?= e(t('action.refresh')) ?>
         </a>
     </header>
