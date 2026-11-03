@@ -38,7 +38,15 @@
     var nodes = canvas ? canvas.querySelectorAll('.node') : [];
 
     /* ---- přechod z jiného rodu: scroll + zvýraznění osoby (#p=QID) ---- */
-    var hashM = /^#p=(Q[0-9]+)$/.exec(window.location.hash || '');
+    // prohlížeč hash nedekóduje – přijímáme i zakódovanou variantu (#p%3DQ808)
+    var rawHash = window.location.hash || '';
+    var decodedHash = rawHash;
+    try { decodedHash = decodeURIComponent(rawHash); } catch (e) { /* nevalidní % – ponechat surové */ }
+    var hashM = /^#p=(Q[0-9]+)$/.exec(decodedHash);
+    if (hashM && rawHash !== decodedHash) {
+        // adresní řádek sjednotit na kanonický tvar #p=QID (bez reloadu/scrollu)
+        history.replaceState(null, '', location.pathname + location.search + '#p=' + hashM[1]);
+    }
     if (hashM) {
         var targetNode = canvas ? canvas.querySelector('[data-id="' + hashM[1] + '"]') : null;
         if (targetNode) {
