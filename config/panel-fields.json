@@ -1,0 +1,18 @@
+{
+  "_doc": "Šablona postranního panelu osoby: pořadí prvků v poli 'fields' = pořadí řádků v panelu. Prvek: pid = PID vlastnosti (viz src/PanelTemplate.php) nebo '*' (všechny zbývající vlastnosti, v pořadí z API); volitelně format 'date' ('1800-01-13T00:00:00Z' → '13. ledna 1800'), join (více hodnot vlastnosti sloučí do jednoho řádku zadaným separátorem), hidden true (vlastnost se nezobrazí), label (přepíše popisek vlastnosti).",
+  "fields": [
+    { "pid": "P39" },
+    { "pid": "P43" },
+    { "pid": "P33", "format": "date" },
+    { "pid": "P34", "format": "date" },
+    { "pid": "P3" },
+    { "pid": "P4" },
+    { "pid": "P32" },
+    { "pid": "P38", "join": ", " },
+    { "pid": "*" },
+    { "pid": "P48" },
+    { "pid": "P44" },
+    { "pid": "P1",  "hidden": true },
+    { "pid": "P10", "hidden": true }
+  ]
+}

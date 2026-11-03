@@ -49,6 +49,16 @@ check_grep() {
     fi
 }
 
+check_grep_not() {
+    local desc="$1" url="$2" needle="$3"
+    if curl -s --max-time 40 "$url" | grep -q "$needle"; then
+        echo "  FAIL ${desc} (nalezeno zakázané '${needle}') → ${url}"
+        FAIL=1
+    else
+        echo "  OK   $desc"
+    fi
+}
+
 echo "== Gotha viewer smoke testy @ $BASE =="
 echo "POZOR: data tečou přes gotha-api; při nezatížené cache mohou některé requesty trvat déle."
 
@@ -74,6 +84,15 @@ fi
 
 check "API s neplatným ID vrací 400" "$BASE/api/person/XXX" 400
 check "Neexistující rod vrací 404" "$BASE/family/Q9999999999" 404
+
+# Šablona panelu (config/panel-fields.json): referenční osoba Q662 má P33 = 1800-01-13
+# a zároveň P1 i P10, takže prověří české datum, sloučené tituly i skryté vlastnosti.
+PANEL_QID="Q662"
+check "API osoby ($PANEL_QID) vrací 200" "$BASE/api/person/$PANEL_QID"
+check_grep "Šablona formátuje datum česky (13. ledna 1800)" "$BASE/api/person/$PANEL_QID" "13. ledna 1800"
+check_grep "Šablona slučuje tituly (P38) do jednoho řádku" "$BASE/api/person/$PANEL_QID" '"join":", "'
+check_grep_not "Šablona skrývá typ záznamu (P1)" "$BASE/api/person/$PANEL_QID" "typ záznamu"
+check_grep_not "Šablona skrývá Wikidata ID entity (P10)" "$BASE/api/person/$PANEL_QID" "Wikidata ID entity"
 
 check "CSS je dostupné" "$BASE/css/style.css"
 check "JS je dostupné" "$BASE/js/app.js"

@@ -93,10 +93,14 @@
                 }
                 html += '<table><tbody>';
                 (data.claims || []).forEach(function (c) {
-                    var val = c.link
-                        ? '<a href="' + esc(c.link) + '" target="_blank" rel="noopener">' + esc(c.value) + '</a>'
-                        : esc(c.value);
-                    html += '<tr><th>' + esc(c.plabel) + '</th><td>' + val + '</td></tr>';
+                    // API (dle šablony panel-fields.json) posílá values[]; hodnoty sloučené
+                    // klíčem "join" (např. tituly) se vypíšou za sebe zadaným separátorem.
+                    var pieces = (c.values || [{ value: c.value, link: c.link }]).map(function (v) {
+                        return v.link
+                            ? '<a href="' + esc(v.link) + '" target="_blank" rel="noopener">' + esc(v.value) + '</a>'
+                            : esc(v.value);
+                    });
+                    html += '<tr><th>' + esc(c.plabel) + '</th><td>' + pieces.join(c.join || '') + '</td></tr>';
                 });
                 html += '</tbody></table>';
                 panelContent.innerHTML = html;

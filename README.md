@@ -33,6 +33,24 @@ jako https://gotha-view.daelba.eu (compose projekt `gotha-viewer` v síti `proxy
 - `/api/person/{QID}` – JSON detail osoby (AJAX z postranního panelu)
 - `/refresh` – přidá `?force=1` do aktuální URL (gotha-api přeskočí cache) a vrátí se zpět
 
+## Postranní panel osoby
+
+Řazení a formát řádků detailu osoby (`/api/person/{QID}`) řídí šablona
+`config/panel-fields.json` – pořadí prvků v poli `fields` = pořadí řádků v panelu.
+Prvky:
+
+- `pid`: PID vlastnosti nebo `"*"` = všechny zbývající vlastnosti (pořadí z API)
+- `format: "date"`: čas `1800-01-13T00:00:00Z` zobrazí jako „13. ledna 1800"
+- `join: ", "`: více hodnot vlastnosti sloučí do jednoho řádku (např. tituly P38)
+- `hidden: true`: vlastnost se nezobrazí (P1 typ záznamu, P10 Wikidata ID entity)
+- `label`: přepíše popisek vlastnosti
+
+Šablonu aplikuje server (`src/PanelTemplate.php`); chybí-li nebo je nevalidní,
+claims projdou v původní podobě z API. Změna šablony se projeví po redeployi
+(`make restart`); viewer odpovědi API necachuje.
+Známé PIDy gotha wikibase: P39 rod, P43 pohlaví, P33/P34 narození/úmrtí,
+P3/P4 otec/matka, P32 choť, P38 titul, P48 poznámka, P44 zdroj.
+
 ## Ikony
 
 SVG ikony z Wikimedia Commons:

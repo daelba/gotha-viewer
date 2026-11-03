@@ -4,8 +4,10 @@ declare(strict_types=1);
 /**
  * AJAX API: detail entity (osoba / rod) pro postranní panel.
  * GET /api/person.php?id=Q647[&force]
- * Vrací JSON: { id, name, wikiUrl, wikidataId, claims: [{pid,plabel,value,link?}] }
+ * Vrací JSON: { id, name, wikiUrl, wikidataId, claims: [{pid,plabel,values:[{value,link?}],join?}] }
  *
+ * Řazení, skrytí a formátování řádků řídí šablona config/panel-fields.json
+ * (PanelTemplate); chybí-li nebo je nevalidní, claims projdou nezpracované.
  * Data čerpá výhradně z gotha-api (ApiClient) – bez SPARQL a bez lokální cache.
  */
 final class ApiController
@@ -31,14 +33,20 @@ final class ApiController
             return;
         }
 
+        $template = PanelTemplate::load(ROOT_DIR . '/config/panel-fields.json');
+
+        // Výstupní řádky dle šablony; bez ní fallback = původní pořadí z API.
         $claimsOut = [];
-        foreach ($person['claims'] as $c) {
-            $claimsOut[] = [
-                'pid'    => $c['pid'],
-                'plabel' => $c['plabel'],
-                'value'  => $c['value'],
-                'link'   => $c['link'],
-            ];
+        if ($template !== null) {
+            $claimsOut = $template->apply($person['claims']);
+        } else {
+            foreach ($person['claims'] as $c) {
+                $claimsOut[] = [
+                    'pid'    => $c['pid'],
+                    'plabel' => $c['plabel'],
+                    'values' => [['value' => $c['value'], 'link' => $c['link']]],
+                ];
+            }
         }
 
         echo json_encode([
